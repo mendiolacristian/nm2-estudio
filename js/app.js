@@ -663,6 +663,86 @@
     });
   }
 
+  // ─── Install Prompt ───
+  let deferredPrompt = null;
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+  }
+
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+  }
+
+  function showInstallBanner() {
+    if (isStandalone()) return;
+    if (localStorage.getItem('nm2-install-dismissed')) return;
+
+    const existing = document.getElementById('install-banner');
+    if (existing) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'install-banner';
+
+    if (isIOS()) {
+      banner.innerHTML = `
+        <div class="install-content">
+          <div class="install-icon">📲</div>
+          <div class="install-text">
+            <strong>Instalar NM2 Estudio</strong>
+            <p>Toca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> y luego <strong>"Agregar a Inicio"</strong></p>
+          </div>
+          <button class="install-close" id="install-dismiss">✕</button>
+        </div>
+      `;
+    } else {
+      banner.innerHTML = `
+        <div class="install-content">
+          <div class="install-icon">📲</div>
+          <div class="install-text">
+            <strong>Instalar NM2 Estudio</strong>
+            <p>Estudia offline desde tu pantalla de inicio</p>
+          </div>
+          <button class="btn btn-primary install-btn" id="install-accept">Instalar</button>
+          <button class="install-close" id="install-dismiss">✕</button>
+        </div>
+      `;
+    }
+
+    document.body.appendChild(banner);
+
+    const dismissBtn = document.getElementById('install-dismiss');
+    dismissBtn.addEventListener('click', () => {
+      banner.remove();
+      localStorage.setItem('nm2-install-dismissed', '1');
+    });
+
+    const acceptBtn = document.getElementById('install-accept');
+    if (acceptBtn && deferredPrompt) {
+      acceptBtn.addEventListener('click', async () => {
+        deferredPrompt.prompt();
+        const result = await deferredPrompt.userChoice;
+        if (result.outcome === 'accepted') {
+          banner.remove();
+        }
+        deferredPrompt = null;
+      });
+    }
+  }
+
+  // Android/Chrome install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBanner();
+  });
+
+  // Show iOS banner after short delay
+  if (isIOS() && !isStandalone()) {
+    setTimeout(showInstallBanner, 2000);
+  }
+
   // ─── Init ───
   render();
 
