@@ -164,6 +164,22 @@
         <h4>Sobre el examen</h4>
         <p>5 pruebas · 25 preguntas cada una · 90 minutos · Opción múltiple + preguntas abiertas</p>
       </div>
+      <button class="install-fixed-btn" id="install-btn">
+        📲 Instalar app en tu celular
+      </button>
+      <div id="install-instructions" class="install-instructions hidden">
+        <p><strong>En iPhone (Safari):</strong></p>
+        <ol>
+          <li>Toca el botón de compartir <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en la barra de Safari</li>
+          <li>Selecciona <strong>"Agregar a pantalla de inicio"</strong></li>
+          <li>Confirma tocando <strong>"Agregar"</strong></li>
+        </ol>
+        <p><strong>En Android (Chrome):</strong></p>
+        <ol>
+          <li>Toca el menú ⋮ de Chrome</li>
+          <li>Selecciona <strong>"Agregar a pantalla de inicio"</strong></li>
+        </ol>
+      </div>
       <div class="subject-grid">
     `;
 
@@ -189,6 +205,15 @@
     $main.querySelectorAll('.subject-card').forEach(card => {
       card.addEventListener('click', () => navigate('subject', { subjectId: card.dataset.id, subjectTab: 'theory' }));
     });
+
+    // Install button
+    const installBtn = document.getElementById('install-btn');
+    const installInstructions = document.getElementById('install-instructions');
+    if (installBtn && installInstructions) {
+      installBtn.addEventListener('click', () => {
+        installInstructions.classList.toggle('hidden');
+      });
+    }
   }
 
   // ─── SUBJECT VIEW ───
@@ -663,103 +688,7 @@
     });
   }
 
-  // ─── Install Prompt ───
-  let deferredPrompt = null;
-
-  function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone === true;
-  }
-
-  function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent)
-      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-      || /Macintosh.*Safari/i.test(navigator.userAgent) && 'ontouchend' in document;
-  }
-
-  function isSafari() {
-    return /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios|edgios/i.test(navigator.userAgent);
-  }
-
-  function showInstallBanner() {
-    if (isStandalone()) return;
-    if (localStorage.getItem('nm2-install-dismissed')) return;
-
-    const existing = document.getElementById('install-banner');
-    if (existing) return;
-
-    const banner = document.createElement('div');
-    banner.id = 'install-banner';
-
-    if (isIOS() || isSafari()) {
-      banner.innerHTML = `
-        <div class="install-content">
-          <div class="install-icon">📲</div>
-          <div class="install-text">
-            <strong>Instalar NM2 Estudio</strong>
-            <p>Toca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> y luego <strong>"Agregar a Inicio"</strong></p>
-          </div>
-          <button class="install-close" id="install-dismiss">✕</button>
-        </div>
-      `;
-    } else if (deferredPrompt) {
-      banner.innerHTML = `
-        <div class="install-content">
-          <div class="install-icon">📲</div>
-          <div class="install-text">
-            <strong>Instalar NM2 Estudio</strong>
-            <p>Estudia offline desde tu pantalla de inicio</p>
-          </div>
-          <button class="btn btn-primary install-btn" id="install-accept">Instalar</button>
-          <button class="install-close" id="install-dismiss">✕</button>
-        </div>
-      `;
-    } else {
-      // Generic fallback for any browser
-      banner.innerHTML = `
-        <div class="install-content">
-          <div class="install-icon">📲</div>
-          <div class="install-text">
-            <strong>Instalar NM2 Estudio</strong>
-            <p>Usa el menú de tu navegador para agregar a pantalla de inicio</p>
-          </div>
-          <button class="install-close" id="install-dismiss">✕</button>
-        </div>
-      `;
-    }
-
-    document.body.appendChild(banner);
-
-    const dismissBtn = document.getElementById('install-dismiss');
-    dismissBtn.addEventListener('click', () => {
-      banner.remove();
-      localStorage.setItem('nm2-install-dismissed', '1');
-    });
-
-    const acceptBtn = document.getElementById('install-accept');
-    if (acceptBtn && deferredPrompt) {
-      acceptBtn.addEventListener('click', async () => {
-        deferredPrompt.prompt();
-        const result = await deferredPrompt.userChoice;
-        if (result.outcome === 'accepted') {
-          banner.remove();
-        }
-        deferredPrompt = null;
-      });
-    }
-  }
-
-  // Android/Chrome install prompt
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    showInstallBanner();
-  });
-
-  // Show banner for all non-standalone contexts after short delay
-  if (!isStandalone()) {
-    setTimeout(showInstallBanner, 1500);
-  }
+  // ─── Install button toggle ───
 
   // ─── Init ───
   render();

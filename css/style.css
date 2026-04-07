@@ -595,43 +595,37 @@ main {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 main > * { animation: fadeIn .25s ease; }
 
-/* ===== INSTALL BANNER ===== */
-#install-banner {
-  position: fixed;
-  bottom: calc(var(--nav-h) + var(--safe-bottom) + 12px);
-  left: 12px;
-  right: 12px;
-  z-index: 200;
-  background: var(--bg-card);
+/* ===== INSTALL BUTTON ===== */
+.install-fixed-btn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(79,109,245,.12);
   border: 1px solid rgba(79,109,245,.3);
   border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.5);
-  animation: slideUp .3s ease;
-}
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
-
-.install-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.install-icon { font-size: 1.8rem; flex-shrink: 0; }
-.install-text { flex: 1; min-width: 0; }
-.install-text strong { font-size: .9rem; display: block; margin-bottom: 2px; }
-.install-text p { font-size: .78rem; color: var(--text-dim); margin: 0; line-height: 1.4; }
-.install-text p strong { display: inline; font-size: inherit; }
-.install-text svg { opacity: .7; }
-.install-btn { flex-shrink: 0; padding: 10px 16px !important; font-size: .82rem !important; }
-.install-close {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-size: 1.1rem;
+  color: var(--accent);
+  font-size: .95rem;
+  font-weight: 600;
   cursor: pointer;
-  padding: 4px 8px;
-  flex-shrink: 0;
+  margin-bottom: 12px;
 }
+.install-fixed-btn:active { opacity: .7; }
+
+.install-instructions {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: .85rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  animation: fadeIn .25s ease;
+}
+.install-instructions p { margin: 0 0 6px; }
+.install-instructions p strong { color: var(--text); }
+.install-instructions ol { padding-left: 20px; margin: 0 0 12px; }
+.install-instructions li { margin-bottom: 4px; }
+.install-instructions li strong { color: var(--text); }
+.install-instructions svg { opacity: .7; }
 
 /* ===== TABLET + ===== */
 @media (min-width: 600px) {

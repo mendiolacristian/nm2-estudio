@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nm2-estudio-v3';
+const CACHE_NAME = 'nm2-estudio-v4';
 const ASSETS = [
   './',
   './index.html',
