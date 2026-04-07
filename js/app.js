@@ -672,7 +672,13 @@
   }
 
   function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+    return /iphone|ipad|ipod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+      || /Macintosh.*Safari/i.test(navigator.userAgent) && 'ontouchend' in document;
+  }
+
+  function isSafari() {
+    return /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios|edgios/i.test(navigator.userAgent);
   }
 
   function showInstallBanner() {
@@ -685,7 +691,7 @@
     const banner = document.createElement('div');
     banner.id = 'install-banner';
 
-    if (isIOS()) {
+    if (isIOS() || isSafari()) {
       banner.innerHTML = `
         <div class="install-content">
           <div class="install-icon">📲</div>
@@ -696,7 +702,7 @@
           <button class="install-close" id="install-dismiss">✕</button>
         </div>
       `;
-    } else {
+    } else if (deferredPrompt) {
       banner.innerHTML = `
         <div class="install-content">
           <div class="install-icon">📲</div>
@@ -705,6 +711,18 @@
             <p>Estudia offline desde tu pantalla de inicio</p>
           </div>
           <button class="btn btn-primary install-btn" id="install-accept">Instalar</button>
+          <button class="install-close" id="install-dismiss">✕</button>
+        </div>
+      `;
+    } else {
+      // Generic fallback for any browser
+      banner.innerHTML = `
+        <div class="install-content">
+          <div class="install-icon">📲</div>
+          <div class="install-text">
+            <strong>Instalar NM2 Estudio</strong>
+            <p>Usa el menú de tu navegador para agregar a pantalla de inicio</p>
+          </div>
           <button class="install-close" id="install-dismiss">✕</button>
         </div>
       `;
@@ -738,9 +756,9 @@
     showInstallBanner();
   });
 
-  // Show iOS banner after short delay
-  if (isIOS() && !isStandalone()) {
-    setTimeout(showInstallBanner, 2000);
+  // Show banner for all non-standalone contexts after short delay
+  if (!isStandalone()) {
+    setTimeout(showInstallBanner, 1500);
   }
 
   // ─── Init ───
